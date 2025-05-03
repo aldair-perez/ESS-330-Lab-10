@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "Lab_10.html",
+    "href": "Lab_10.html",
+    "title": "Lab_10",
+    "section": "",
+    "text": "library(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.2     ✔ tibble    3.2.1\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.0.4     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(sf)\n\nLinking to GEOS 3.13.1, GDAL 3.10.2, PROJ 9.5.1; sf_use_s2() is TRUE\n\nlibrary(units)\n\nudunits database from C:/Users/aldai/AppData/Local/R/win-library/4.5/units/share/udunits/udunits2.xml\n\nlibrary(AOI)\n\nlibrary(gghighlight)\nlibrary(ggrepel)\nlibrary(knitr)\n\nlibrary(flextable)\n\n\nAttaching package: 'flextable'\n\nThe following object is masked from 'package:purrr':\n\n    compose\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(tibble)"
+  },
+  {
+    "objectID": "Lab_10.html#border",
+    "href": "Lab_10.html#border",
+    "title": "Lab_10",
+    "section": "2.1: Border",
+    "text": "2.1: Border\n\nusa_poly &lt;- Pais %&gt;%\n  st_union() %&gt;%\n  st_make_valid()\nusa_border &lt;- st_cast(usa_poly, \"MULTILINESTRING\")\n\ncities_proj &lt;- st_transform(cities_filtered, crs = st_crs(pais_eqdc))\nusa_border_proj &lt;- st_transform(usa_border, crs = st_crs(pais_eqdc))\n\ncities_proj$distance_to_usa_border &lt;- st_distance(cities_proj, usa_border_proj) / 1000\n\ncities_farthest_usa_border &lt;- cities_proj %&gt;%\n  st_drop_geometry() %&gt;%\n  arrange(desc(distance_to_usa_border)) %&gt;%\n  head(5)\n\nflextable(cities_farthest_usa_border[, c(\"city\", \"state_id\", \"distance_to_usa_border\")])\n\ncitystate_iddistance_to_usa_borderParmeleeSD1,626.278 [m]Soldier CreekSD1,621.778 [m]MissionSD1,613.385 [m]AntelopeSD1,612.751 [m]NorrisSD1,612.102 [m]"
+  },
+  {
+    "objectID": "Lab_10.html#states",
+    "href": "Lab_10.html#states",
+    "title": "Lab_10",
+    "section": "2.2: States",
+    "text": "2.2: States\n\nusa_states &lt;- Pais %&gt;% \n  st_cast(\"MULTILINESTRING\") %&gt;%\n  st_union() %&gt;%\n  st_make_valid()\n\nusa_states_proj &lt;- st_transform(usa_states, crs = st_crs(pais_eqdc))\n\ncities_proj$distance_to_state_border &lt;- st_distance(cities_proj, usa_states_proj) / 1000\n\ncities_farthest_state_border &lt;- cities_proj %&gt;%\n  st_drop_geometry() %&gt;%\n  arrange(desc(distance_to_state_border)) %&gt;%\n  head(5)\n\nflextable(cities_farthest_state_border[, c(\"city\", \"state_id\", \"distance_to_state_border\")])\n\ncitystate_iddistance_to_state_borderMinneapolisKS1,090.628 [m]BarnardKS1,089.957 [m]AdaKS1,089.876 [m]WellsKS1,086.474 [m]BenningtonKS1,083.891 [m]"
+  },
+  {
+    "objectID": "Lab_10.html#mexico",
+    "href": "Lab_10.html#mexico",
+    "title": "Lab_10",
+    "section": "2.3: Mexico",
+    "text": "2.3: Mexico\n\nmexico_border_proj &lt;- Pais %&gt;%\n  filter(adm0_a3 == \"MEX\") %&gt;%\n  st_union() %&gt;%\n  st_make_valid() %&gt;%\n  st_transform(crs = st_crs(pais_eqdc)) %&gt;%\n  st_cast(\"MULTILINESTRING\")\n\ncities_proj$distance_to_mexico_border &lt;- as.numeric(st_distance(cities_proj, mexico_border_proj)) / 1000\n\ncities_farthest_mexico_border &lt;- cities_proj %&gt;%\n  st_drop_geometry() %&gt;%\n  arrange(desc(distance_to_mexico_border)) %&gt;%\n  head(5)\n\nflextable(cities_farthest_mexico_border[, c(\"city\", \"state_id\", \"distance_to_mexico_border\")])\n\ncitystate_iddistance_to_mexico_borderGrand IsleME3,282.825CaribouME3,250.330Presque IsleME3,234.570OakfieldME3,175.577Island FallsME3,162.285"
+  },
+  {
+    "objectID": "Lab_10.html#canada",
+    "href": "Lab_10.html#canada",
+    "title": "Lab_10",
+    "section": "2.4: Canada",
+    "text": "2.4: Canada\n\ncanada_border &lt;- Pais %&gt;% \n  filter(adm0_a3 == \"CAN\") %&gt;%\n  st_union() %&gt;%\n  st_make_valid()\ncanada_border &lt;- st_cast(canada_border, \"MULTILINESTRING\")\n\ncanada_border_proj &lt;- st_transform(canada_border, crs = st_crs(pais_eqdc) )\n\ncities_proj$distance_to_canada_border &lt;- st_distance(cities_proj, canada_border_proj) / 1000\n\ncities_farthest_canada_border &lt;- cities_proj %&gt;%\n  st_drop_geometry() %&gt;%\n  arrange(desc(distance_to_canada_border)) %&gt;%\n  head(5)\n\nflextable(cities_farthest_canada_border[, c(\"city\", \"state_id\", \"distance_to_canada_border\")])\n\ncitystate_iddistance_to_canada_borderGuadalupe GuerraTX2,206.455 [m]SandovalTX2,205.641 [m]FrontonTX2,204.794 [m]Fronton RanchettesTX2,202.118 [m]EvergreenTX2,202.020 [m]"
+  },
+  {
+    "objectID": "Lab_10.html#border-1",
+    "href": "Lab_10.html#border-1",
+    "title": "Lab_10",
+    "section": "3.2: Border",
+    "text": "3.2: Border\n\nfarthest_usa_border &lt;- cities_proj %&gt;%\n  arrange(desc(distance_to_usa_border)) %&gt;%\n  slice(1:5)\n\ncities_proj$distance_km &lt;- as.numeric(cities_proj$distance_to_usa_border)\n\nggplot() +\n  geom_sf(data = pais_eqdc, fill = \"grey90\", color = \"black\", lty = 1) +\n  geom_sf(data = cities_proj, aes(color = distance_km), size = 1) +\n  scale_color_viridis_c(name = \"Distance to National Border (km)\") +\n  geom_sf(data = farthest_usa_border, color = \"red\", size = 2) +\n  ggrepel::geom_label_repel(data = farthest_usa_border,\n                            aes(geometry = geometry, label = city),\n                            stat = \"sf_coordinates\", size = 3) +\n  theme_minimal() +\n  ggtitle(\"Distance of USA Cities to National Border\")"
+  },
+  {
+    "objectID": "Lab_10.html#state-border",
+    "href": "Lab_10.html#state-border",
+    "title": "Lab_10",
+    "section": "3.3: State Border",
+    "text": "3.3: State Border\n\nfarthest_state_border &lt;- cities_proj %&gt;%\n  arrange(desc(distance_to_state_border)) %&gt;%\n  slice(1:5)\n\nggplot() +\n  geom_sf(data = pais_eqdc, fill = \"grey\", color = \"black\") +\n  geom_sf(data = cities_proj, aes(color = distance_km), size = 1) +\n  scale_color_viridis_c(name = \"Distance to State Border (km)\") +\n  geom_sf(data = farthest_state_border, color = \"blue\", size = 2) +\n  ggrepel::geom_label_repel(data = farthest_state_border,\n                            aes(geometry = geometry, label = city),\n                            stat = \"sf_coordinates\", size = 3) +\n  theme_minimal() +\n  ggtitle(\"Distance of USA Cities to Nearest State Border\")"
+  },
+  {
+    "objectID": "Lab_10.html#mexico-and-canada",
+    "href": "Lab_10.html#mexico-and-canada",
+    "title": "Lab_10",
+    "section": "3.4: Mexico and Canada",
+    "text": "3.4: Mexico and Canada\n\ncities_proj$border_diff &lt;- abs(\n  as.numeric(cities_proj$distance_to_mexico_border) -\n  as.numeric(cities_proj$distance_to_canada_border)\n)\n\nequidistant_cities &lt;- cities_proj %&gt;%\n  filter(border_diff &lt;= 100)\n\ntop5_equidistant &lt;- equidistant_cities %&gt;%\n  arrange(desc(population)) %&gt;%\n  slice(1:5)\n\nggplot() +\n  geom_sf(data = pais_eqdc, fill = \"white\", color = \"black\") +\n  geom_sf(data = cities_proj, color = \"orange\", size = 0.5) +\n  geom_sf(data = equidistant_cities, aes(color = border_diff), size = 1) +\n  scale_color_viridis_c(name = \"|Distance Mexico - Canada| (km)\") +\n  gghighlight(border_diff &lt;= 100) +\n  ggrepel::geom_label_repel(data = top5_equidistant,\n                            aes(geometry = geometry, label = city),\n                            stat = \"sf_coordinates\", size = 3, color = \"darkred\") +\n  theme_minimal() +\n  ggtitle(\"Cities Equidistant from Canada and Mexico (±100 km)\")\n\nWarning: Could not calculate the predicate for layer 1; ignored"
+  },
+  {
+    "objectID": "Lab_10.html#quantifying-border",
+    "href": "Lab_10.html#quantifying-border",
+    "title": "Lab_10",
+    "section": "4.1: Quantifying Border",
+    "text": "4.1: Quantifying Border\n\nborder_km &lt;- 160\n\ncities_proj$distance_to_usa_border &lt;- as.numeric(cities_proj$distance_to_usa_border)\n\ncities_border_zone &lt;- cities_proj %&gt;%\n  filter(distance_to_usa_border &lt;= border_km)\n\ntotal_cities &lt;- nrow(cities_proj)\n\ntotal_population &lt;- sum(cities_proj$population, na.rm = TRUE)\nborder_zone_population &lt;- sum(cities_border_zone$population, na.rm = TRUE)\n\npercent_cities_in_zone &lt;- nrow(cities_border_zone) / total_cities * 100\npercent_population_in_zone &lt;- border_zone_population / total_population * 100\n\nborder_summary &lt;- tibble(\n  Metric = c(\"Total Cities\", \"Cities within 100 miles\", \"Total Population\", \"Population in 100-mile Zone\", \"Percent of Cities\", \"Percent of Population\"),\n  Value = c(total_cities,\n            nrow(cities_border_zone),\n            formatC(total_population, format = \"d\", big.mark = \",\"),\n            formatC(border_zone_population, format = \"d\", big.mark = \",\"),\n            sprintf(\"%.2f%%\", percent_cities_in_zone),\n            sprintf(\"%.2f%%\", percent_population_in_zone))\n)\n\nflextable(border_summary)\n\nMetricValueTotal Cities30460Cities within 100 miles8196Total Population396,228,558Population in 100-mile Zone205,635,986Percent of Cities26.91%Percent of Population51.90%\n\n\n\nThe results from the table somewhat reflect/match to the ACLU estimates from the link provided."
+  },
+  {
+    "objectID": "Lab_10.html#map-border",
+    "href": "Lab_10.html#map-border",
+    "title": "Lab_10",
+    "section": "4.2: Map Border",
+    "text": "4.2: Map Border\n\ntop10_border_zone &lt;- cities_border_zone %&gt;%\n  arrange(desc(population)) %&gt;%\n  slice(1:10)\n\nggplot() +\n  geom_sf(data = pais_eqdc, fill = \"red\", color = \"orange\") +\n  geom_sf(data = cities_proj, color = \"yellow\", size = 0.3) +\n  geom_sf(data = cities_border_zone, aes(color = population), size = 1) +\n  scale_color_gradient(low = \"orange\", high = \"darkred\", name = \"Population\") +\n  gghighlight(distance_to_usa_border &lt;= border_km) +\n  ggrepel::geom_label_repel(data = top10_border_zone,\n                            aes(geometry = geometry, label = city),\n                            stat = \"sf_coordinates\", size = 3, color = \"violet\") +\n  ggtitle(\"Cities within 100-Mile Border Zone\") +\n  theme_minimal()\n\nWarning: Could not calculate the predicate for layer 1; ignored"
+  },
+  {
+    "objectID": "Lab_10.html#section",
+    "href": "Lab_10.html#section",
+    "title": "Lab_10",
+    "section": "4.3",
+    "text": "4.3\n\nThe most populous city in each state within the Danger Zone are Seattle, San Fransico, Los Angeles, Dan Diego, Houston, Miami, Washington D.C, Philidelphia, New York, and Boston."
+  }
+]
